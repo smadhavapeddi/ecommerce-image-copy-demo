@@ -1,0 +1,71 @@
+name: ecommerce-image-copy-demo
+region: nyc
+services:
+  - name: web
+    environment_slug: node-js
+    github:
+      # Replace with your own repo once you've pushed this folder.
+      repo: your-github-username/ecommerce-image-copy-demo
+      branch: main
+      deploy_on_push: true
+    # Delete this line if this folder (ecommerce-image-copy-demo/) is itself
+    # the repo root. Set it to the right subpath if you pushed it inside a
+    # larger repo instead.
+    # source_dir: /ecommerce-image-copy-demo
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    http_port: 8080
+    # The whole app sits behind HTTP Basic Auth (see envs below), so the
+    # platform health check must hit the one route that's exempt from auth —
+    # otherwise App Platform's own health probe would get a 401 and the app
+    # could be marked unhealthy / restarted in a loop.
+    health_check:
+      http_path: /healthz
+    envs:
+      # Start safe: dry-run mode needs no key and costs nothing. Flip to
+      # "false" once MODEL_ACCESS_KEY is set and you're ready to go live.
+      - key: DRY_RUN
+        value: "true"
+        scope: RUN_TIME
+        type: general
+      # Create this in the Control Panel: Inference -> Model Access Keys.
+      - key: MODEL_ACCESS_KEY
+        value: "REPLACE_WITH_YOUR_SERVERLESS_INFERENCE_MODEL_ACCESS_KEY"
+        scope: RUN_TIME
+        type: secret
+      # Model used to write marketing copy.
+      - key: CHAT_MODEL
+        value: "openai-gpt-oss-120b"
+        scope: RUN_TIME
+        type: general
+      # Model used to generate the product image.
+      - key: IMAGE_MODEL
+        value: "openai-gpt-image-2"
+        scope: RUN_TIME
+        type: general
+      - key: IMAGE_SIZE
+        value: "auto"
+        scope: RUN_TIME
+        type: general
+      - key: IMAGE_QUALITY
+        value: "auto"
+        scope: RUN_TIME
+        type: general
+      - key: IMAGE_OUTPUT_FORMAT
+        value: "jpeg"
+        scope: RUN_TIME
+        type: general
+      - key: IMAGE_BACKGROUND
+        value: "opaque"
+        scope: RUN_TIME
+        type: general
+      # Basic Auth credentials gating the whole app. Change these before
+      # sharing the URL beyond a quick internal demo.
+      - key: AUTH_USERNAME
+        value: "solutions"
+        scope: RUN_TIME
+        type: general
+      - key: AUTH_PASSWORD
+        value: "champs"
+        scope: RUN_TIME
+        type: secret
